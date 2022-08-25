@@ -55,6 +55,7 @@ terraform {
 
 provider "azurerm" {
   partner_id = "451dc593-a3a3-4d41-91e7-3aadf93e1a78"
+  oidc       = true
   features {
     key_vault {
       purge_soft_delete_on_destroy = true
@@ -64,6 +65,7 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias                      = "vhub"
+  oidc                       = true
   skip_provider_registration = true
   features {}
   subscription_id = data.azurerm_client_config.default.subscription_id
