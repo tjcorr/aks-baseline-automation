@@ -10,7 +10,7 @@ on:
 # Set the default working directory to point at the terraform folder
 defaults:
   run:
-    working-directory: IAC/terraform
+    working-directory: ./IAC/terraform
 
 jobs:
   terraform-unit-tests:
