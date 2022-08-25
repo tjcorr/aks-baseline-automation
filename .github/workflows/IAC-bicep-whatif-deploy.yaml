@@ -12,7 +12,7 @@ name: 'Bicep Whatif / Deploy'
 # Set the default working directory to point at the bicep folder
 defaults:
   run:
-    working-directory: IAC/bicep
+    working-directory: IaC/bicep
 
 # Special permissions required for OIDC authentication
 permissions:

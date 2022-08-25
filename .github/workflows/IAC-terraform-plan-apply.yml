@@ -18,7 +18,7 @@ on:
 # Set the default working directory to point at the terraform folder
 defaults:
   run:
-    working-directory: IAC/terraform
+    working-directory: IaC/terraform
 
 # Special permissions required for OIDC authentication
 permissions:

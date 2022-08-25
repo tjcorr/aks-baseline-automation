@@ -7,7 +7,7 @@ name: 'Bicep Unit Tests'
 # Set the default working directory to point at the bicep folder
 defaults:
   run:
-    working-directory: IAC/bicep
+    working-directory: IaC/bicep
 
 env:
   LOCATION: "eastus"

@@ -5,12 +5,12 @@ on:
   push:
     paths: 
     - 'IaC/terraform/**'
-    - '.github/workflows/IAC-terraform-unit-tests.yml'
+    - '.github/workflows/IaC-terraform-unit-tests.yml'
 
 # Set the default working directory to point at the terraform folder
 defaults:
   run:
-    working-directory: ./IAC/terraform
+    working-directory: IaC/terraform
 
 jobs:
   terraform-unit-tests:
