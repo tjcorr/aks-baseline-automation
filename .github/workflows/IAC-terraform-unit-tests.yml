@@ -1,8 +1,11 @@
 name: 'Terraform Unit Tests'
 
 # Uncomment the trigger conditions below to enable this workflow
-# on:
-#   push:
+on:
+  push:
+    paths: 
+    - 'IaC/terraform/**'
+    - '.github/workflows/IAC-terraform-unit-tests.yml'
 
 # Set the default working directory to point at the terraform folder
 defaults:

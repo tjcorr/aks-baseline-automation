@@ -1,13 +1,19 @@
 name: 'Terraform Plan/Apply'
 
 # Uncomment the trigger conditions below to enable this workflow
-# on:
-#   push:
-#     branches:
-#     - main
-#   pull_request:
-#     branches:
-#     - main
+on:
+  push:
+    branches:
+    - testing
+    paths: 
+    - 'IaC/terraform/**'
+    - '.github/workflows/IAC-terraform-plan-apply.yml'
+  pull_request:
+    branches:
+    - testing
+    paths: 
+    - 'IaC/terraform/**'
+    - '.github/workflows/IAC-terraform-plan-apply.yml'
 
 # Set the default working directory to point at the terraform folder
 defaults:
