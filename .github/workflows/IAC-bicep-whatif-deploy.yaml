@@ -74,7 +74,10 @@ jobs:
     - name: "ptin"
       run: |
         pwd
-        ls -lha                    
+        ls -lha
+        cd ../..
+        pwd
+        ls -lha
             
     # Create string output of Whatif
     - name: Create String Output
