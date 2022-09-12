@@ -51,5 +51,5 @@ jobs:
         inlineScript: |
           az deployment sub validate \
             --name validate-${{ github.run_id }} \
-            --template-file main.bicep \
+            --template-file ./IaC/bicep/rg-hub/hub-default.bicep \
             --location $LOCATION 
