@@ -68,7 +68,7 @@ jobs:
             --name whatif-${{ github.run_id }} \
             --template-file ./IaC/bicep/rg-hub/hub-default.bicep \
             --parameters ./IaC/bicep/rg-hub/hub-default.parameters.json \
-            -l $LOCATION
+            -l $LOCATION > whatif
             
     # Create string output of Whatif
     - name: Create String Output
