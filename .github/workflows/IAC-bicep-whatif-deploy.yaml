@@ -4,10 +4,10 @@ name: 'Bicep Whatif / Deploy'
 on:
   push:
     branches:
-    - main
+    - testing
   pull_request:
     branches:
-    - main
+    - testing
 
 # Set the default working directory to point at the bicep folder
 defaults:
