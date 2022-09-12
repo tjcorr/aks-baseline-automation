@@ -92,7 +92,7 @@ jobs:
       
     # If this is a PR post the changes
     - name: Push Whatif Output to PR
-      if: github.ref != 'refs/heads/main'
+      if: github.ref != 'refs/heads/testing'
       uses: actions/github-script@v2
       env:
         SUMMARY: "${{ steps.whatif-string.outputs.summary }}"
@@ -109,7 +109,7 @@ jobs:
             
   bicep-deploy:
     name: 'Bicep Deploy'
-    if: github.ref == 'refs/heads/main' 
+    if: github.ref == 'refs/heads/testing' 
     runs-on: ubuntu-latest
     environment: production-approval
     needs: [bicep-whatif]
