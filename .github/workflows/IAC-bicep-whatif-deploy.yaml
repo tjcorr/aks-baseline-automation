@@ -70,6 +70,12 @@ jobs:
             --parameters ./IaC/bicep/rg-hub/hub-default.parameters.json \
             -l $LOCATION > whatif
             
+        # Preview changes
+    - name: "ptin"
+      run: |
+        pwd
+        ls -lha                    
+            
     # Create string output of Whatif
     - name: Create String Output
       id: whatif-string
