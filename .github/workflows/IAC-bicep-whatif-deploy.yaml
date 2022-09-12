@@ -9,11 +9,6 @@ on:
     branches:
     - testing
 
-# Set the default working directory to point at the bicep folder
-defaults:
-  run:
-    working-directory: IaC/bicep
-
 # Special permissions required for OIDC authentication
 permissions:
   id-token: write
@@ -69,16 +64,7 @@ jobs:
             --template-file ./IaC/bicep/rg-hub/hub-default.bicep \
             --parameters ./IaC/bicep/rg-hub/hub-default.parameters.json \
             -l $LOCATION > whatif
-            
-        # Preview changes
-    - name: "ptin"
-      run: |
-        pwd
-        ls -lha
-        cd ../..
-        pwd
-        ls -lha
-            
+                        
     # Create string output of Whatif
     - name: Create String Output
       id: whatif-string
