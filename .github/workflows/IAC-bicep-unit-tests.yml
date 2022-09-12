@@ -42,14 +42,14 @@ jobs:
     - name: Bicep Lint
       uses: Azure/cli@v1
       with:
-        inlineScript: az bicep build --file ./IaC/bicep/rg-spoke/spoke-default.bicep
+        inlineScript: az bicep build --file ./IaC/bicep/rg-hub/hub-default.bicep
         
     # Validate whether a template is valid at subscription scope
     - name: Bicep Validate
       uses: Azure/arm-deploy@v1
       with:
         scope: subscription
-        template: ./IaC/bicep/rg-spoke/spoke-default.bicep 
-        parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json
+        template: ./IaC/bicep/rg-hub/hub-default.bicep 
+        parameters: ./IaC/bicep/rg-hub/hub.parameters.json
         deploymentMode: Validate
         deploymentName: validate-${{ github.run_id }}
