@@ -3,15 +3,17 @@ name: 'Bicep Whatif / Deploy'
 on:
   push:
     branches:
-    - bicep
+    - main
     paths:
     - 'IaC/bicep/rg-hub/**'
+    - '.github/workflows/bicep-hub.yml'
     
   pull_request:
     branches:
-    - bicep
+    - main
     paths:
     - 'IaC/bicep/rg-hub/**'
+    - '.github/workflows/bicep-hub.yml'
 
   workflow_dispatch:
   
@@ -61,7 +63,7 @@ jobs:
           az deployment sub validate \
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
-            --parameters ${{env.BICEP_PARAMETER_FILE}} \ 
+            --parameters ${{env.BICEP_PARAMETERS}} \ 
             --location ${{env.LOCATION}}     
 
     # Preview changes
@@ -72,7 +74,7 @@ jobs:
           az deployment sub what-if \
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
-            --parameters ${{env.BICEP_PARAMETER_FILE}} \ 
+            --parameters ${{env.BICEP_PARAMETERS}} \ 
             --location ${{env.LOCATION}}     
             
       # Create string output of Whatif
@@ -146,6 +148,6 @@ jobs:
           az deployment sub create \
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
-            --parameters ${{env.BICEP_PARAMETER_FILE}} \ 
+            --parameters ${{env.BICEP_PARAMETERS}} \ 
             --location ${{env.LOCATION}}     
             
