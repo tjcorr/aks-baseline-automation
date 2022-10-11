@@ -1,0 +1,150 @@
+name: 'Bicep Whatif / Deploy'
+
+on:
+  push:
+    branches:
+    - bicep
+    paths:
+    - 'IaC/bicep/rg-hub/**'
+    
+  pull_request:
+    branches:
+    - bicep
+    paths:
+    - 'IaC/bicep/rg-hub/**'
+
+  workflow_dispatch:
+  
+
+#Special permissions required for OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+  
+env:
+  LOCATION: "eastus"
+  BICEP_TEMPLATE: "IaC/bicep/rg-hub/hub-default.bicep"
+  BICEP_PARAMETERS: "IaC/bicep/rg-hub/hub-default.parameters.json"
+  DEPLOYMENT_NAME: "aks-hub"
+
+jobs:
+  bicep-whatif:
+    name: 'Bicep Whatif'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+     # Checks that all Bicep configuration files adhere to a canonical format
+    - name: Bicep Lint
+      uses: Azure/cli@v1
+      with:
+        inlineScript: az bicep build --file $BICEP_TEMPLATE
+        
+    # Validate whether a template is valid at subscription scope
+    - name: Bicep Validate
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az deployment sub validate \
+            --name $DEPLOYMENT_NAME \
+            --template-file $BICEP_TEMPLATE \
+            --parameters $BICEP_PARAMETER_FILE \ 
+            --location $LOCATION     
+
+    # Preview changes
+    - name: "What-If"
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az deployment sub what-if \
+            --name $DEPLOYMENT_NAME \
+            --template-file main.bicep \
+            --location $LOCATION > whatif
+            
+      # Create string output of Whatif
+    - name: Create String Output
+      id: whatif-string
+      run: |
+        WHATIF=$(cat whatif)
+        echo "## Whatif Output" >> whatif.string
+        echo "<details><summary>Click to expand</summary>" >> whatif.string
+        echo "" >> whatif.string
+        echo '```' >> whatif.string
+        echo "$WHATIF" >> whatif.string
+        echo '```' >> whatif.string
+        echo "</details>" >> whatif.string
+        
+        SUMMARY=$(cat whatif.string)
+        SUMMARY="${SUMMARY//'%'/'%25'}"
+        SUMMARY="${SUMMARY//$'\n'/'%0A'}"
+        SUMMARY="${SUMMARY//$'\r'/'%0D'}"
+        
+        echo "::set-output name=summary::$SUMMARY"
+
+    # Publish Terraform Plan as task summary
+    - name: Publish Whatif to Task Summary
+      run: |
+        cat whatif.string >> $GITHUB_STEP_SUMMARY
+      
+    # If this is a PR post the changes
+    - name: Push Whatif Output to PR
+      if: github.ref != 'refs/heads/main'
+      uses: actions/github-script@v2
+      env:
+        SUMMARY: "${{ steps.whatif-string.outputs.summary }}"
+      with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = `${process.env.SUMMARY}`;
+            github.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+            })
+            
+  bicep-deploy:
+    name: 'Bicep Deploy'
+    #TODO can we easily determine if there are any changes to deploy?
+    if: github.ref == 'refs/heads/main' 
+    runs-on: ubuntu-latest
+    environment: production-approval
+    needs: [bicep-whatif]
+    
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+    # Deploy
+    - name: "Bicep Deployment"
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az deployment sub create \
+            --name $DEPLOYMENT_NAME \
+            --template-file $BICEP_TEMPLATE \
+            --parameters $BICEP_PARAMETER_FILE \
+            --location $LOCATION 
+            
