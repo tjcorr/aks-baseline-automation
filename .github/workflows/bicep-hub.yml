@@ -64,7 +64,8 @@ jobs:
             --location ${{env.LOCATION}} \
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
-            --parameters ${{env.BICEP_PARAMETERS}} 
+            --parameters ${{env.BICEP_PARAMETERS}} \
+            --location ${{env.LOCATION}} 
 
     # Preview changes
     - name: "What-If"
@@ -75,8 +76,7 @@ jobs:
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
             --parameters ${{env.BICEP_PARAMETERS}} \ 
-            --location ${{env.LOCATION}} \ 
-            -l ${{env.LOCATION}}
+            --location ${{env.LOCATION}} 
             
       # Create string output of Whatif
     - name: Create String Output
