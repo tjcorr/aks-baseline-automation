@@ -59,10 +59,10 @@ jobs:
       with:
         inlineScript: |
           az deployment sub validate \
-            --name $DEPLOYMENT_NAME \
-            --template-file $BICEP_TEMPLATE \
-            --parameters $BICEP_PARAMETER_FILE \ 
-            --location $LOCATION     
+            --name ${{env.DEPLOYMENT_NAME}} \
+            --template-file ${{BICEP_TEMPLATE}} \
+            --parameters ${{BICEP_PARAMETER_FILE}} \ 
+            --location ${{LOCATION}}     
 
     # Preview changes
     - name: "What-If"
@@ -70,9 +70,10 @@ jobs:
       with:
         inlineScript: |
           az deployment sub what-if \
-            --name $DEPLOYMENT_NAME \
-            --template-file main.bicep \
-            --location $LOCATION > whatif
+            --name ${{env.DEPLOYMENT_NAME}} \
+            --template-file ${{BICEP_TEMPLATE}} \
+            --parameters ${{BICEP_PARAMETER_FILE}} \ 
+            --location ${{LOCATION}}     
             
       # Create string output of Whatif
     - name: Create String Output
@@ -143,8 +144,8 @@ jobs:
       with:
         inlineScript: |
           az deployment sub create \
-            --name $DEPLOYMENT_NAME \
-            --template-file $BICEP_TEMPLATE \
-            --parameters $BICEP_PARAMETER_FILE \
-            --location $LOCATION 
+            --name ${{env.DEPLOYMENT_NAME}} \
+            --template-file ${{BICEP_TEMPLATE}} \
+            --parameters ${{BICEP_PARAMETER_FILE}} \ 
+            --location ${{LOCATION}}     
             
