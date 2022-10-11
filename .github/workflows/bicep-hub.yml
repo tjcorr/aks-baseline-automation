@@ -61,10 +61,10 @@ jobs:
       with:
         inlineScript: |
           az deployment sub validate --location ${{env.LOCATION}} \
+            --unhandled-rejections=strict \ 
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
-            --parameters ${{env.BICEP_PARAMETERS}} \ 
-            --location ${{env.LOCATION}} 
+            --parameters ${{env.BICEP_PARAMETERS}} 
 
     # Preview changes
     - name: "What-If"
