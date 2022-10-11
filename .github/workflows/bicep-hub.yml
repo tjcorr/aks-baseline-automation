@@ -3,13 +3,13 @@ name: 'Bicep Whatif / Deploy'
 on:
   push:
     branches:
-    - main
+    - bicep
     paths:
     - 'IaC/bicep/rg-hub/**'
     
   pull_request:
     branches:
-    - main
+    - bicep
     paths:
     - 'IaC/bicep/rg-hub/**'
 
