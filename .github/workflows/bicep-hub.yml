@@ -65,6 +65,17 @@ jobs:
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
             --parameters ${{env.BICEP_PARAMETERS}} 
+            
+    # Validate whether a template is valid at subscription scope
+    - name: Bicep Validate 2
+      uses: Azure/cli@v1
+      with:
+        inlineScript: |
+          az deployment sub validate \
+            --name ${{env.DEPLOYMENT_NAME}} \
+            --template-file ${{env.BICEP_TEMPLATE}} \
+            --parameters ${{env.BICEP_PARAMETERS}} \
+            --location ${{env.LOCATION}}
 
     # Preview changes
     - name: "What-If"
