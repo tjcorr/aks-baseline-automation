@@ -60,8 +60,7 @@ jobs:
       uses: Azure/cli@v1
       with:
         inlineScript: |
-          az deployment sub validate \
-            --unhandled-rejections=strict \
+          az deployment sub validate --location ${{env.LOCATION}} \
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
             --parameters ${{env.BICEP_PARAMETERS}} \ 
