@@ -61,6 +61,7 @@ jobs:
       with:
         inlineScript: |
           az deployment sub validate \
+            --unhandled-rejections=strict
             --name ${{env.DEPLOYMENT_NAME}} \
             --template-file ${{env.BICEP_TEMPLATE}} \
             --parameters ${{env.BICEP_PARAMETERS}} \ 
