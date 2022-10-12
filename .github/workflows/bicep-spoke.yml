@@ -57,13 +57,13 @@ jobs:
               
             echo 'convert deployment outputs to outputs'
             echo "setting output test=values"
-            echo "test=value" >> $GITHUB_OUTPUT
+            echo  "::set-output name=test::value"
             echo $DEPLOYMENT_OUTPUTS | jq -c '. | to_entries[] | [.key, .value.value]' |
               while IFS=$"\n" read -r c; do
                 OUTPUT_NAME=$(echo "$c" | jq -r '.[0]')
                 OUTPUT_VALUE=$(echo "$c" | jq -r '.[1]')
                 echo "setting output $OUTPUT_NAME=$OUTPUT_VALUE"
-                echo "$OUTPUT_NAME=$OUTPUT_VALUE" >> $GITHUB_OUTPUT
+                echo "::set-output name=$OUTPUT_NAME::$OUTPUT_VALUE"
               done
 
   deploy_hub:
