@@ -48,7 +48,7 @@ jobs:
           
       - name: 'Fetch deployment'
         id: params
-        uses: tjcorr/cli@temp
+        uses: tjcorr/cli@tjcorr-87
         with:
           inlineScript: |
             DEPLOYMENT_OUTPUTS=$(az deployment sub show \
