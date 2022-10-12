@@ -36,6 +36,9 @@ jobs:
       hubVnetId: ${{ steps.params.outputs.hubFwResohubVnetIdurceId }}
       
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
       - name: 'Az CLI login'
         uses: azure/login@v1
         with:
