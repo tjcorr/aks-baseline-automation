@@ -36,7 +36,7 @@ jobs:
     outputs: 
       hubFwResourceId: ${{ steps.params.outputs.hubFwResourceId }}
       hubLaWorkspaceResourceId: ${{ steps.params.outputs.hubLaWorkspaceResourceId }}
-      hubVnetId: ${{ steps.params.outputs.hubFwResohubVnetIdurceId }}
+      hubVnetResourceId: ${{ steps.params.outputs.hubVnetId }}
       
     steps:
       - name: Checkout
