@@ -46,6 +46,12 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           
+      - name: debug
+        run: |
+          pwd
+          ls -lha
+          echo "test=value" >> $GITHUB_OUTPUT
+          
       - name: 'Fetch deployment'
         id: params
         uses: tjcorr/cli@main
@@ -54,7 +60,9 @@ jobs:
             DEPLOYMENT_OUTPUTS=$(az deployment sub show \
               --query properties.outputs \
               -n $HUB_DEPLOYMENT_NAME)
-              
+            
+            pwd
+            ls -lha
             echo 'convert deployment outputs to outputs'
             echo "setting output test=values"
             echo "summary=value" >> $GITHUB_OUTPUT
