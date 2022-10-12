@@ -55,9 +55,6 @@ jobs:
               --query properties.outputs \
               -n $HUB_DEPLOYMENT_NAME)
             
-            pwd
-            ls -lha
-            env | grep GITHUB
             echo 'convert deployment outputs to outputs'
             echo $DEPLOYMENT_OUTPUTS | jq -c '. | to_entries[] | [.key, .value.value]' |
               while IFS=$"\n" read -r c; do
