@@ -1,0 +1,75 @@
+name: 'Bicep Whatif / Deploy'
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'IaC/bicep/rg-spoke/spoke**'
+    - '.github/workflows/bicep-spoke.yml'
+    
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'IaC/bicep/rg-spoke/spoke**'
+    - '.github/workflows/bicep-spoke.yml'
+
+  workflow_dispatch:
+
+env:
+  HUB_DEPLOYMENT_NAME: aks-hub
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  fetch_hub_params:
+    name: 'Fetch Hub Parameters"
+    id: params
+    runs-on: ubuntu-latest
+    environment: production
+    outputs: 
+      hubFwResourceId: ${{ steps.params.outputs.hubFwResourceId }}
+      hubLaWorkspaceResourceId: ${{ steps.params.outputs.hubLaWorkspaceResourceId }}
+      hubVnetId: ${{ steps.params.outputs.hubFwResohubVnetIdurceId }}
+      
+    steps:
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          
+      - name: 'Fetch deployment"
+        id: params
+        uses: tjcorr/cli@main
+        with:
+          inlineScript: |
+            DEPLOYMENT_OUTPUTS=$(az deployment sub show \
+              --query properties.outputs
+              -n $HUB_DEPLOYMENT_NAME)
+              
+            echo 'convert deployment outputs to outputs'
+            echo $DEPLOYMENT_OUTPUTS | jq -c '. | to_entries[] | [.key, .value.value]' |
+              while IFS=$"\n" read -r c; do
+                OUTPUT_NAME=$(echo "$c" | jq -r '.[0]')
+                OUTPUT_VALUE=$(echo "$c" | jq -r '.[1]')
+                echo "setting output $OUTPUT_NAME=$OUTPUT_VALUE"
+                echo "$OUTPUT_NAME=$OUTPUT_VALUE" >> $GITHUB_OUTPUT
+              done
+
+  deploy_hub:
+    name: 'Bicep - Deploy Spoke'
+    needs: [fetch_hub_params]
+    uses: tjcorr/aks-baseline-automation/.github/workflows/bicep-reusable.yml@main
+    with:
+      location: "eastus"
+      bicep_template: "IaC/bicep/rg-spoke/spoke.bicep"
+      bicep_parameters:  "IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{needs.params.outputs.hubVnetResourceId}} hubLaWorkspaceResourceId=${{needs.params.outputs.hubLaWorkspaceResourceId}} hubFwResourceId=${{needs.params.outputs.hubFwResourceId}}"
+      deployment_name: "aks-hub"
+    secrets: inherit
+    
+ 
