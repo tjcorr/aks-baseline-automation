@@ -16,15 +16,13 @@ on:
       deployment_name:
         required: true
         type: string
+    secrets:
       AZURE_CLIENT_ID:
         required: true
-        type: string
       AZURE_TENANT_ID:
         required: true
-        type: string
       AZURE_SUBSCRIPTION_ID:
         required: true
-        type: string
         
 #Special permissions required for OIDC authentication
 permissions:
