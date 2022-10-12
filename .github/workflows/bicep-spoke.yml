@@ -56,6 +56,8 @@ jobs:
               -n $HUB_DEPLOYMENT_NAME)
               
             echo 'convert deployment outputs to outputs'
+            echo "setting output test=values"
+            echo "test=value" >> $GITHUB_OUTPUT
             echo $DEPLOYMENT_OUTPUTS | jq -c '. | to_entries[] | [.key, .value.value]' |
               while IFS=$"\n" read -r c; do
                 OUTPUT_NAME=$(echo "$c" | jq -r '.[0]')
