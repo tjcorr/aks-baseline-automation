@@ -26,8 +26,7 @@ permissions:
 
 jobs:
   fetch_hub_params:
-    name: 'Fetch Hub Parameters"
-    id: params
+    name: 'Fetch Hub Parameters'
     runs-on: ubuntu-latest
     environment: production
     outputs: 
@@ -43,7 +42,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           
-      - name: 'Fetch deployment"
+      - name: 'Fetch deployment'
         id: params
         uses: tjcorr/cli@main
         with:
@@ -68,7 +67,11 @@ jobs:
     with:
       location: "eastus"
       bicep_template: "IaC/bicep/rg-spoke/spoke.bicep"
-      bicep_parameters:  "IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{needs.params.outputs.hubVnetResourceId}} hubLaWorkspaceResourceId=${{needs.params.outputs.hubLaWorkspaceResourceId}} hubFwResourceId=${{needs.params.outputs.hubFwResourceId}}"
+      bicep_parameters: |
+         IaC/bicep/rg-spoke/spoke.parameters.json \ 
+         hubVnetResourceId=${{needs.fetch_hub_params.outputs.hubVnetResourceId}} \ 
+         hubLaWorkspaceResourceId=${{needs.fetch_hub_params.outputs.hubLaWorkspaceResourceId}} \
+         hubFwResourceId=${{needs.fetch_hub_params.outputs.hubFwResourceId}}
       deployment_name: "aks-hub"
     secrets: inherit
     
