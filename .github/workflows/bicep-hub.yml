@@ -26,7 +26,7 @@ env:
 
 jobs:
   reusable_workflow_job:
-    uses: tjcorr/aks-baseline-automation/.github/workflows/bicep-reuseabl.ymle@main
+    uses: tjcorr/aks-baseline-automation/.github/workflows/bicep-reuseable.yml@main
     with:
       location: ${{env.LOCATION}}
       bicep_template: ${{env.BICEP_TEMPLATE}}
