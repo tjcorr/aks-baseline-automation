@@ -57,7 +57,7 @@ jobs:
         
     # Validate whether a template is valid at subscription scope
     - name: Bicep Validate
-      uses: tjcorr/cli@temp
+      uses: tjcorr/cli@tjcorr-87
       with:
         inlineScript: |
           az deployment sub validate \
