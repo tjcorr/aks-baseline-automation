@@ -1,22 +1,21 @@
 name: 'Bicep Whatif / Deploy'
 
 on:
-  push:
-    branches:
-    - main
-    paths:
-    - 'IaC/bicep/rg-hub/**'
-    - '.github/workflows/bicep-hub.yml'
-    
-  pull_request:
-    branches:
-    - main
-    paths:
-    - 'IaC/bicep/rg-hub/**'
-    - '.github/workflows/bicep-hub.yml'
-
-  workflow_dispatch:
-  
+  workflow_call:
+    inputs: 
+      location: 
+        required: true
+        type: string
+        default: eastus
+      bicep_template:
+        required: true
+        type: string
+      bicep_parameters:
+        required: true
+        type: string
+      deployment_name:
+        required: true
+        type: string
 
 #Special permissions required for OIDC authentication
 permissions:
@@ -24,12 +23,6 @@ permissions:
   contents: read
   pull-requests: write
   
-env:
-  LOCATION: "eastus"
-  BICEP_TEMPLATE: "IaC/bicep/rg-hub/hub-default.bicep"
-  BICEP_PARAMETERS: "IaC/bicep/rg-hub/hub-default.parameters.json"
-  DEPLOYMENT_NAME: "aks-hub"
-
 jobs:
   bicep-whatif:
     name: 'Bicep Whatif'
@@ -53,7 +46,7 @@ jobs:
     - name: Bicep Lint
       uses: tjcorr/cli@main
       with:
-        inlineScript: az bicep build --file $BICEP_TEMPLATE
+        inlineScript: az bicep build --file ${{inputs.bicep_template}}
         
     # Validate whether a template is valid at subscription scope
     - name: Bicep Validate
@@ -61,10 +54,10 @@ jobs:
       with:
         inlineScript: |
           az deployment sub validate \
-            --location ${{env.LOCATION}} \
-            --name ${{env.DEPLOYMENT_NAME}} \
-            --template-file ${{env.BICEP_TEMPLATE}} \
-            --parameters ${{env.BICEP_PARAMETERS}} 
+            --location ${{inputs.location}} \
+            --name ${{inputs.deployment_name}} \
+            --template-file ${{inputs.bicep_template}} \
+            --parameters ${{inputs.bicep_parameters}} 
             
     # Preview changes
     - name: "What-If"
@@ -72,10 +65,10 @@ jobs:
       with:
         inlineScript: |
           az deployment sub what-if \
-            --location ${{env.LOCATION}} \
-            --name ${{env.DEPLOYMENT_NAME}} \
-            --template-file ${{env.BICEP_TEMPLATE}} \
-            --parameters ${{env.BICEP_PARAMETERS}} > whatif
+            --location ${{inputs.location}} \
+            --name ${{inputs.deployment_name}} \
+            --template-file ${{inputs.bicep_template}} \
+            --parameters ${{inputs.bicep_parameters}} > whatif
             
       # Create string output of Whatif
     - name: Create String Output
@@ -146,8 +139,8 @@ jobs:
       with:
         inlineScript: |
           az deployment sub create \
-            --location ${{env.LOCATION}} \
-            --name ${{env.DEPLOYMENT_NAME}} \
-            --template-file ${{env.BICEP_TEMPLATE}} \
-            --parameters ${{env.BICEP_PARAMETERS}} > whatif
+            --location ${{inputs.location}} \
+            --name ${{inputs.deployment_name}} \
+            --template-file ${{inputs.bicep_template}} \
+            --parameters ${{inputs.bicep_parameters}} 
             
