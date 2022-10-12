@@ -17,18 +17,11 @@ on:
 
   workflow_dispatch:
   
-  
-env:
-  LOCATION: "eastus"
-  BICEP_TEMPLATE: "IaC/bicep/rg-hub/hub-default.bicep"
-  BICEP_PARAMETERS: "IaC/bicep/rg-hub/hub-default.parameters.json"
-  DEPLOYMENT_NAME: "aks-hub"
-
 jobs:
   reusable_workflow_job:
     uses: tjcorr/aks-baseline-automation/.github/workflows/bicep-reusable.yml@main
     with:
-      location: ${{env.LOCATION}}
-      bicep_template: ${{env.BICEP_TEMPLATE}}
-      bicep_parameters: ${{env.BICEP_PARAMETERS}}
-      deployment_name: ${{env.DEPLOYMENT_NAME}}
+      location: "eastus"
+      bicep_template: "IaC/bicep/rg-hub/hub-default.bicep"
+      bicep_parameters:  "IaC/bicep/rg-hub/hub-default.parameters.json"
+      deployment_name: "aks-hub"
