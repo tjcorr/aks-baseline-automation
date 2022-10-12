@@ -51,7 +51,7 @@ jobs:
         
      # Checks that all Bicep configuration files adhere to a canonical format
     - name: Bicep Lint
-      uses: tjcorr/cli@temp
+      uses: tjcorr/cli@tjcorr-87
       with:
         inlineScript: az bicep build --file ${{inputs.bicep_template}}
         
@@ -68,7 +68,7 @@ jobs:
             
     # Preview changes
     - name: "What-If"
-      uses: tjcorr/cli@temp
+      uses: tjcorr/cli@tjcorr-87
       with:
         inlineScript: |
           az deployment sub what-if \
@@ -142,7 +142,7 @@ jobs:
         
     # Deploy
     - name: "Bicep Deployment"
-      uses: tjcorr/cli@temp
+      uses: tjcorr/cli@tjcorr-87
       with:
         inlineScript: |
           az deployment sub create \
