@@ -18,7 +18,8 @@ on:
   workflow_dispatch:
   
 jobs:
-  reusable_workflow_job:
+  deploy_hub:
+    name: 'Bicep - Deploy Hub'
     uses: tjcorr/aks-baseline-automation/.github/workflows/bicep-reusable.yml@main
     with:
       location: "eastus"
