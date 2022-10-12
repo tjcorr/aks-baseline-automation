@@ -49,7 +49,7 @@ jobs:
         with:
           inlineScript: |
             DEPLOYMENT_OUTPUTS=$(az deployment sub show \
-              --query properties.outputs
+              --query properties.outputs \ 
               -n $HUB_DEPLOYMENT_NAME)
               
             echo 'convert deployment outputs to outputs'
