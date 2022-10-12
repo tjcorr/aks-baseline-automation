@@ -46,13 +46,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           
-      - name: debug
-        run: |
-          pwd
-          ls -lha
-          echo "test=value" >> $GITHUB_OUTPUT
-          env | grep GITHUB
-          
       - name: 'Fetch deployment'
         id: params
         uses: tjcorr/cli@temp
@@ -66,15 +59,12 @@ jobs:
             ls -lha
             env | grep GITHUB
             echo 'convert deployment outputs to outputs'
-            echo "setting output test=values"
-            echo "summary=value" >> $GITHUB_OUTPUT
-            echo  "::set-output name=test::value"
             echo $DEPLOYMENT_OUTPUTS | jq -c '. | to_entries[] | [.key, .value.value]' |
               while IFS=$"\n" read -r c; do
                 OUTPUT_NAME=$(echo "$c" | jq -r '.[0]')
                 OUTPUT_VALUE=$(echo "$c" | jq -r '.[1]')
                 echo "setting output $OUTPUT_NAME=$OUTPUT_VALUE"
-                echo "::set-output name=$OUTPUT_NAME::$OUTPUT_VALUE"
+                echo "$OUTPUT_NAME=$OUTPUT_VALUE" >> $GITHUB_OUTPUT
               done
 
   deploy_hub:
