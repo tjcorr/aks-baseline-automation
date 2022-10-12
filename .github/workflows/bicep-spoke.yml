@@ -51,6 +51,7 @@ jobs:
           pwd
           ls -lha
           echo "test=value" >> $GITHUB_OUTPUT
+          env
           
       - name: 'Fetch deployment'
         id: params
@@ -63,6 +64,7 @@ jobs:
             
             pwd
             ls -lha
+            env
             echo 'convert deployment outputs to outputs'
             echo "setting output test=values"
             echo "summary=value" >> $GITHUB_OUTPUT
