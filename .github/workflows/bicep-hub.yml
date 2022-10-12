@@ -25,4 +25,4 @@ jobs:
       bicep_template: "IaC/bicep/rg-hub/hub-default.bicep"
       bicep_parameters:  "IaC/bicep/rg-hub/hub-default.parameters.json"
       deployment_name: "aks-hub"
-      secrets: inherit
+    secrets: inherit
