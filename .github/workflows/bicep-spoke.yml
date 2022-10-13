@@ -71,7 +71,7 @@ jobs:
   test:
     name: 'test'
     needs: [fetch_hub_params]
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     steps:
     - run: |
         echo "hubFwResourceId=${{needs.fetch_hub_params.outputs.hubFwResourceId}} more data"
