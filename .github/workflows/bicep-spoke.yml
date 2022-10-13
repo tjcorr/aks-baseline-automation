@@ -68,14 +68,6 @@ jobs:
                 echo "$OUTPUT_NAME=$OUTPUT_VALUE" >> $GITHUB_OUTPUT
               done
 
-  test:
-    name: 'test'
-    needs: [fetch_hub_params]
-    runs-on: ubuntu-latest
-    steps:
-    - run: |
-        echo "hubFwResourceId=${{needs.fetch_hub_params.outputs.hubFwResourceId}} more data"
-
   deploy_hub:
     name: 'Bicep - Deploy Spoke'
     needs: [fetch_hub_params]
@@ -85,9 +77,9 @@ jobs:
       bicep_template: "IaC/bicep/rg-spoke/spoke.bicep"
       bicep_parameters: |
          IaC/bicep/rg-spoke/spoke.parameters.json \
-         hubVnetResourceId="${{needs.fetch_hub_params.outputs.hubVnetResourceId}}" \
-         hubLaWorkspaceResourceId="${{needs.fetch_hub_params.outputs.hubLaWorkspaceResourceId}}" \
-         hubFwResourceId="${{needs.fetch_hub_params.outputs.hubFwResourceId}}"
+         hubVnetResourceId=${{needs.fetch_hub_params.outputs.hubVnetResourceId}} \
+         hubLaWorkspaceResourceId=${{needs.fetch_hub_params.outputs.hubLaWorkspaceResourceId}} \
+         hubFwResourceId=${{needs.fetch_hub_params.outputs.hubFwResourceId}} \
       deployment_name: aks-spoke
     secrets: inherit
     
