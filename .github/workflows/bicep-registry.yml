@@ -77,7 +77,7 @@ jobs:
       bicep_parameters: |
          IaC/bicep/rg-spoke/acr.parameters.json \
          targetVnetResourceId=${{needs.fetch_hub_params.outputs.clusterVnetResourceId}} \
-      deployment_name: ${{env.ACR_DEPLOYMENT_NAME}}
+      deployment_name: aks-acr
     secrets: inherit
     
  
