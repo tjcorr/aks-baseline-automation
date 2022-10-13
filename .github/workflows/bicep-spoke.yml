@@ -1,4 +1,4 @@
-name: 'Bicep Whatif / Deploy'
+name: 'Bicep - Spoke'
 
 on:
   push:
