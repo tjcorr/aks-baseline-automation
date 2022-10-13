@@ -72,8 +72,7 @@ jobs:
             --location ${{inputs.location}} \
             --name ${{inputs.deployment_name}} \
             --template-file ${{inputs.bicep_template}} \
-            --parameters ${{inputs.bicep_parameters}} \
-            > whatif
+            --parameters ${{inputs.bicep_parameters}} > whatif
 
       # Create string output of Whatif
     - name: Create String Output
