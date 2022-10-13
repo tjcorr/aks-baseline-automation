@@ -19,6 +19,7 @@ on:
 
 env:
   HUB_DEPLOYMENT_NAME: aks-hub
+  SPOKE_DEPLOYMENT_NAME: aks-spoke
   AZURE_CLIENT_ID: 342a012d-8827-4111-9537-380feb9a84fe
   AZURE_TENANT_ID: 2e31c919-7c36-4274-96cf-2b8a44e00ce2
   AZURE_SUBSCRIPTION_ID: 918f5d0d-1312-44ff-89c5-05c0d9d49dd1
@@ -79,7 +80,7 @@ jobs:
          hubVnetResourceId=${{needs.fetch_hub_params.outputs.hubVnetResourceId}} \
          hubLaWorkspaceResourceId=${{needs.fetch_hub_params.outputs.hubLaWorkspaceResourceId}} \
          hubFwResourceId=${{needs.fetch_hub_params.outputs.hubFwResourceId}}
-      deployment_name: "aks-hub"
+      deployment_name: ${{env.SPOKE_DEPLOYMENT_NAME}}
     secrets: inherit
     
  
