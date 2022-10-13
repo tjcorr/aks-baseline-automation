@@ -80,7 +80,7 @@ jobs:
          hubVnetResourceId=${{needs.fetch_hub_params.outputs.hubVnetResourceId}} \
          hubLaWorkspaceResourceId=${{needs.fetch_hub_params.outputs.hubLaWorkspaceResourceId}} \
          hubFwResourceId=${{needs.fetch_hub_params.outputs.hubFwResourceId}}
-      deployment_name: ${{env.SPOKE_DEPLOYMENT_NAME}}
+      deployment_name: aks-spoke
     secrets: inherit
     
  
