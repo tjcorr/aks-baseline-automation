@@ -84,10 +84,10 @@ jobs:
       location: "eastus"
       bicep_template: "IaC/bicep/rg-spoke/spoke.bicep"
       bicep_parameters: |
-         "IaC/bicep/rg-spoke/spoke.parameters.json \
-         hubVnetResourceId=${{needs.fetch_hub_params.outputs.hubVnetResourceId}} \
-         hubLaWorkspaceResourceId=${{needs.fetch_hub_params.outputs.hubLaWorkspaceResourceId}} \
-         hubFwResourceId=${{needs.fetch_hub_params.outputs.hubFwResourceId}}"
+         IaC/bicep/rg-spoke/spoke.parameters.json \
+         hubVnetResourceId="${{needs.fetch_hub_params.outputs.hubVnetResourceId}}" \
+         hubLaWorkspaceResourceId="${{needs.fetch_hub_params.outputs.hubLaWorkspaceResourceId}}" \
+         hubFwResourceId="${{needs.fetch_hub_params.outputs.hubFwResourceId}}"
       deployment_name: aks-spoke
     secrets: inherit
     
