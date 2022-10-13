@@ -73,10 +73,7 @@ jobs:
             --name ${{inputs.deployment_name}} \
             --template-file ${{inputs.bicep_template}} \
             --parameters ${{inputs.bicep_parameters}} > whatif
-   
-    - name: cat
-      run: cat whatif
-   
+
       # Create string output of Whatif
     - name: Create String Output
       id: whatif-string
