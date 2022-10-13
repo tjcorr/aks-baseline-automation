@@ -83,4 +83,3 @@ jobs:
       deployment_name: aks-spoke
     secrets: inherit
     
- 
