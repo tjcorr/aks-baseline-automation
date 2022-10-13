@@ -62,7 +62,7 @@ jobs:
             echo $DEPLOYMENT_OUTPUTS | jq -c '. | to_entries[] | [.key, .value.value]' |
               while IFS=$"\n" read -r c; do
                 OUTPUT_NAME=$(echo "$c" | jq -r '.[0]')
-                OUTPUT_VALUE=$(echo "$c" | jq -r '.[1]')
+                OUTPUT_VALUE=$(echo "$c" | jq -rc '.[1]')
                 echo "setting output $OUTPUT_NAME=$OUTPUT_VALUE"
                 echo "$OUTPUT_NAME=$OUTPUT_VALUE" >> $GITHUB_OUTPUT
               done
