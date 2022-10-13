@@ -1,0 +1,85 @@
+name: 'Bicep Whatif / Deploy'
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'IaC/bicep/rg-spoke/acr**'
+    - '.github/workflows/bicep-registry.yml'
+    
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'IaC/bicep/rg-spoke/acr**'
+    - '.github/workflows/bicep-registry.yml'
+
+  workflow_dispatch:
+
+env:
+  HUB_DEPLOYMENT_NAME: aks-hub
+  AZURE_CLIENT_ID: 342a012d-8827-4111-9537-380feb9a84fe
+  AZURE_TENANT_ID: 2e31c919-7c36-4274-96cf-2b8a44e00ce2
+  AZURE_SUBSCRIPTION_ID: 918f5d0d-1312-44ff-89c5-05c0d9d49dd1
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  fetch_hub_params:
+    name: 'Fetch Hub Parameters'
+    runs-on: ubuntu-latest
+    environment: production
+    outputs: 
+      hubFwResourceId: ${{ steps.params.outputs.hubFwResourceId }}
+      hubLaWorkspaceResourceId: ${{ steps.params.outputs.hubLaWorkspaceResourceId }}
+      hubVnetResourceId: ${{ steps.params.outputs.hubVnetId }}
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+          
+      - name: 'Fetch deployment'
+        id: params
+        uses: tjcorr/cli@tjcorr-87
+        with:
+          inlineScript: |
+            DEPLOYMENT_OUTPUTS=$(az deployment sub show \
+              --query properties.outputs \
+              -n $HUB_DEPLOYMENT_NAME)
+            
+            echo 'convert deployment outputs to outputs'
+            echo $DEPLOYMENT_OUTPUTS | jq -c '. | to_entries[] | [.key, .value.value]' |
+              while IFS=$"\n" read -r c; do
+                OUTPUT_NAME=$(echo "$c" | jq -r '.[0]')
+                OUTPUT_VALUE=$(echo "$c" | jq -r '.[1]')
+                echo "setting output $OUTPUT_NAME=$OUTPUT_VALUE"
+                echo "$OUTPUT_NAME=$OUTPUT_VALUE" >> $GITHUB_OUTPUT
+              done
+
+  deploy_hub:
+    name: 'Bicep - Deploy ACR'
+    needs: [fetch_hub_params]
+    uses: tjcorr/aks-baseline-automation/.github/workflows/bicep-reusable.yml@main
+    with:
+      location: "eastus"
+      bicep_template: "IaC/bicep/rg-spoke/acr.bicep"
+      bicep_parameters: |
+         IaC/bicep/rg-spoke/acr.parameters.json \
+         hubVnetResourceId=${{needs.fetch_hub_params.outputs.hubVnetResourceId}} \
+         hubLaWorkspaceResourceId=${{needs.fetch_hub_params.outputs.hubLaWorkspaceResourceId}} \
+         hubFwResourceId=${{needs.fetch_hub_params.outputs.hubFwResourceId}}
+      deployment_name: "aks-hub"
+    secrets: inherit
+    
+ 
