@@ -9,31 +9,20 @@ param resourceGroupName string = 'rg-bu0001a0008'
 
 @allowed([
   'australiaeast'
-  'australiasoutheast'
   'canadacentral'
-  'canadaeast'
   'centralus'
-  'eastasia'
   'eastus'
   'eastus2'
+  'westus2'
   'francecentral'
-  'francesouth'
-  'germanynorth'
   'germanywestcentral'
-  'japanwest'
-  'northcentralus'
   'northeurope'
   'southafricanorth'
-  'southafricawest'
   'southcentralus'
-  'southeastasia'
   'uksouth'
-  'ukwest'
-  'westcentralus'
   'westeurope'
-  'westus'
-  'westus2'
-
+  'japaneast'
+  'southeastasia'
 ])
 @description('AKS Service, Node Pool, and supporting services (KeyVault, App Gateway, etc) region. This needs to be the same region as the vnet provided in these parameters.')
 param location string = 'eastus2'
@@ -74,6 +63,9 @@ var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resou
 
 /*** EXISTING RESOURCES ***/
 
+// I have no idea why but this doesn't work. I get the error:
+// {"status":"Failed","error":{"code":"DeploymentFailed","message":"At least one resource deployment operation failed. Please list deployment operations for details. Please see https://aka.ms/DeployOperations for usage details.","details":[{"code":"BadRequest","message":"{\r\n  \"error\": {\r\n    \"code\": \"InvalidDeployment\",\r\n    \"message\": \"The 'location' property must be specified for 'rg-enterprise-networking-spokes'. Please see https://aka.ms/deploy-to-subscription for usage details.\"\r\n  }\r\n}"}]}}
+// changing to using resourceGroup() instead of the commented out lines below works.
 resource spokeResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   scope: subscription()
   name: '${split(targetVnetResourceId, '/')[4]}'
@@ -81,6 +73,7 @@ resource spokeResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' exis
 
 resource spokeVirtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' existing = {
   scope: spokeResourceGroup
+  // scope: resourceGroup('${split(targetVnetResourceId, '/')[4]}')
   name: '${last(split(targetVnetResourceId, '/'))}'
 
   resource snetClusterNodes 'subnets@2021-05-01' existing = {
@@ -124,6 +117,8 @@ module dnsPrivateZoneAcr '../CARML/Microsoft.Network/privateDnsZones/deploy.bice
         name: 'to_${spokeVirtualNetwork.name}'
         virtualNetworkResourceId: targetVnetResourceId
         registrationEnabled: false
+        //tbd if location is needed here
+        //location: 'global'
       }
     ]
   }

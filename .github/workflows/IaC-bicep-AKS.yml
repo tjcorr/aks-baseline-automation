@@ -127,7 +127,13 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/spoke.bicep
-          parameters: ./IaC/bicep/rg-spoke/spoke.parameters.json hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }} resourceGroupName=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }}
+          parameters: |
+            ./IaC/bicep/rg-spoke/spoke.parameters.json \
+            hubVnetResourceId=${{ steps.hub.outputs.hubVnetId }} \
+            hubLaWorkspaceResourceId=${{ steps.hub.outputs.hubLaWorkspaceResourceId }} \
+            hubFwResourceId=${{ steps.hub.outputs.hubFwResourceId }} \
+            resourceGroupName=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} \
+            location=${{ github.event.inputs.REGION }}
           failOnStdErr: false
           deploymentName: carml-spoke-${{ github.event.inputs.REGION }}
 
@@ -139,7 +145,11 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/acr.bicep
-          parameters: ./IaC/bicep/rg-spoke/acr.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
+          parameters: |
+            ./IaC/bicep/rg-spoke/acr.parameters.json \
+            targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} \
+            location=${{ github.event.inputs.REGION }} \
+            resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
           failOnStdErr: false
           deploymentName: carml-registry-${{ github.event.inputs.REGION }}
 
@@ -158,7 +168,14 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/clusterprereq.bicep
-          parameters: ./IaC/bicep/rg-spoke/clusterprereq.parameters.json appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
+          parameters: |
+            ./IaC/bicep/rg-spoke/clusterprereq.parameters.json \
+            appGatewayListenerCertificate=${{ env.APP_GATEWAY_LISTENER_CERTIFICATE }} \
+            aksIngressControllerCertificate=${{ env.AKS_INGRESS_CONTROLLER_CERTIFICATE }} \
+            targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} \
+            vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} \
+            location=${{ github.event.inputs.REGION }} \
+            resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
@@ -170,7 +187,15 @@ jobs:
           region: ${{ github.event.inputs.REGION }}
           scope: subscription
           template: ./IaC/bicep/rg-spoke/cluster.bicep
-          parameters: ./IaC/bicep/rg-spoke/cluster.parameters.json targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} location=${{ github.event.inputs.REGION }} resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
+          parameters: |
+            ./IaC/bicep/rg-spoke/cluster.parameters.json \
+            targetVnetResourceId=${{ steps.spoke.outputs.clusterVnetResourceId }} \
+            clusterAdminAadGroupObjectId=${{ github.event.inputs.clusterAdminAadGroupObjectId }} \
+            a0008NamespaceReaderAadGroupObjectId=${{ github.event.inputs.a0008NamespaceReaderAadGroupObjectId }} \
+            vNetResourceGroup=rg-enterprise-networking-spokes-${{ github.event.inputs.REGION }} \
+            location=${{ github.event.inputs.REGION }} \
+            resourceGroupName=rg-BU0001A0008-${{ github.event.inputs.REGION }} \
+            gitOpsBootstrappingRepoBranch=${{ github.ref_name }}
           failOnStdErr: false
           deploymentName: carml-cluster-${{ github.event.inputs.REGION }}
 
@@ -214,4 +239,3 @@ jobs:
           az keyvault network-rule remove -n ${{ env.AKV_NAME }} --ip-address ${CURRENT_IP_ADDRESS}
           az role assignment delete --role a4417e6f-fecd-4de8-b567-7b0420556985 --assignee $ASSIGNEE_OBJ_ID --scope $AKV_RESOURCE_ID
           
-
