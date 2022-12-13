@@ -161,3 +161,42 @@ module traefikImage '../single-deploy/copy-image.bicep' = {
     identityId: mi.outputs.identityId
   }
 }
+
+param prereqs_resourceGroupName string
+
+@description('Key Vault public network access.')
+param prereqs_keyVaultPublicNetworkAccess string
+
+@description('Domain name to use for App Gateway and AKS ingress.')
+param prereqs_domainName string
+
+param prereqs_appGatewayListenerCertificate string
+param prereqs_aksIngressControllerCertificate string
+
+//sample script to make certs
+/*
+export DOMAIN_NAME_AKS_BASELINE="contoso.com"
+export CN="bicycle"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out appgw.crt -keyout appgw.key -subj "/CN=${CN}.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso Bicycle" -addext "subjectAltName = DNS:${CN}.${DOMAIN_NAME_AKS_BASELINE}" -addext "keyUsage = digitalSignature" -addext "extendedKeyUsage = serverAuth"
+openssl pkcs12 -export -out appgw.pfx -in appgw.crt -inkey appgw.key -passout pass:
+export APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE=$(cat appgw.pfx | base64 | tr -d '\n')
+echo "APP_GATEWAY_LISTENER_CERTIFICATE=$APP_GATEWAY_LISTENER_CERTIFICATE_AKS_BASELINE" >> $GITHUB_ENV
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -out traefik-ingress-internal-aks-ingress-tls.crt -keyout traefik-ingress-internal-aks-ingress-tls.key -subj "/CN=*.aks-ingress.${DOMAIN_NAME_AKS_BASELINE}/O=Contoso AKS Ingress"
+export AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE=$(cat traefik-ingress-internal-aks-ingress-tls.crt | base64 | tr -d '\n')
+echo "AKS_INGRESS_CONTROLLER_CERTIFICATE=$AKS_INGRESS_CONTROLLER_CERTIFICATE_BASE64_AKS_BASELINE" >> $GITHUB_ENV
+*/
+
+
+module clusterPrereqs '../rg-spoke/clusterprereq.bicep' = {
+  name: 'cluster-prereqs'
+  params: {
+    resourceGroupName: prereqs_resourceGroupName
+    vNetResourceGroup: spoke_resourceGroupName
+    location: location
+    keyVaultPublicNetworkAccess: prereqs_keyVaultPublicNetworkAccess
+    domainName: prereqs_domainName
+    targetVnetResourceId: spoke.outputs.clusterVnetResourceId
+    appGatewayListenerCertificate: prereqs_appGatewayListenerCertificate
+    aksIngressControllerCertificate: prereqs_aksIngressControllerCertificate
+  }
+}

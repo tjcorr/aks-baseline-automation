@@ -196,8 +196,14 @@
         "acr_resourceGroupName": {
             "value": "rg-bu0001a0008"
         },
-        "acr_geoRedundancyLocation": {
+        "prereqs_resourceGroupName": {
             "value": "northeurope"
+        },
+        "prereqs_keyVaultPublicNetworkAccess": {
+            "value": "Enabled"
+        },
+        "prereqs_domainName": {
+            "value": "contoso.com"
         }
     }        
 }

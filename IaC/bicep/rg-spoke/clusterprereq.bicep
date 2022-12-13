@@ -1,3 +1,18 @@
+//this current takes a certification as an input and stores it in a keyvault this script creates
+//unfortunately that doesn't let us create the cert in a stateful way in bicep
+//we need to either
+// OPTION 1
+// utilize a deployment script within this template to create the cert as part of the deployment rather than passing it in
+// OPTION 2
+// remove storing the cert from this file and create a deployment script at the root that runs after this to upload the cert. 
+
+//either way the cert should be optionally specified. if it is we use it, otherwise we create the sample one.
+
+
+// ALl of this would never actually be done in production so trying to think how we would do it there. 
+//Normally a cert would be generated and stored in KV or similar beforehand. 
+//The problem then is setting up the networking to allow our nodepools to pull the secret.
+
 targetScope = 'subscription'
 
 @description('Name of the resource group')
