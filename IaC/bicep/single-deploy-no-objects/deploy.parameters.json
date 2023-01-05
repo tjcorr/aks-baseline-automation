@@ -196,14 +196,20 @@
         "acr_resourceGroupName": {
             "value": "rg-bu0001a0008"
         },
-        "prereqs_resourceGroupName": {
+        "acr_geoRedundancyLocation": {
             "value": "northeurope"
+        },
+        "prereqs_resourceGroupName": {
+            "value": "rg-bu0001a0008"
         },
         "prereqs_keyVaultPublicNetworkAccess": {
             "value": "Enabled"
         },
         "prereqs_domainName": {
             "value": "contoso.com"
+        },
+        "prereqs_cn": {
+            "value": "bicycle"
         }
     }        
 }

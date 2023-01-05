@@ -46,11 +46,17 @@ param keyVaultPublicNetworkAccess string
 @description('Domain name to use for App Gateway and AKS ingress.')
 param domainName string
 
+@description('The CN to be used along with the domain name (ie: bicycle will result in fqdn of bicycle.contoso.com)')
+param cn string = 'bicycle'
+
 @description('The regional network spoke VNet Resource ID that the cluster will be joined to')
 @minLength(79)
 param targetVnetResourceId string
 
+@description('The certificate to use for the App Gateway listener. If blank a certificate will be auto-generated.')
 param appGatewayListenerCertificate string
+
+@description('The certificate to use for the AKS Ingress Controller. If blank a certificate will be auto-generated.')
 param aksIngressControllerCertificate string
 
 var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resourceGroupName, location)
@@ -79,7 +85,7 @@ module rg '../CARML/Microsoft.Resources/resourceGroups/deploy.bicep' = {
 //     location: location
 //     akvName: keyVault.name
 //     certificateNameFE: 'frontendCertificate'
-//     certificateCommonNameFE: 'bicycle.${domainName}'
+//     certificateCommonNameFE: '${cn}.${domainName}'
 //     certificateNameBE: 'backendCertificate'
 //     certificateCommonNameBE: '*.aks-ingress.${domainName}'
 //   }
@@ -272,10 +278,32 @@ module keyVault '../CARML/Microsoft.KeyVault/vaults/deploy.bicep' = {
   ]
 }
 
+module appGatewayGeneratedCert 'generate-appgateway-cert.bicep' = if(appGatewayListenerCertificate == '') {
+  name: 'appgatewaycert'
+  scope: resourceGroup(resourceGroupName)
+  params: {
+    location: location
+    cn: cn
+    domainName: domainName
+  }
+}
+
+module aksGeneratedCert 'generate-aks-cert.bicep' = if(aksIngressControllerCertificate == '') {
+  name: 'akscert'
+  scope: resourceGroup(resourceGroupName)
+  params: {
+    location: location
+    domainName: domainName
+  }
+}
+
+var appGatewayCert = appGatewayListenerCertificate == '' ? appGatewayGeneratedCert.outputs.certificate : appGatewayListenerCertificate
+var aksCert = aksIngressControllerCertificate == '' ? aksGeneratedCert.outputs.certificate : aksIngressControllerCertificate
+
 module frontendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
   name: 'frontendCert'
   params: {
-    value: appGatewayListenerCertificate
+    value: appGatewayCert
     keyVaultName: keyVaultName
     name: 'frontendCert'
   }
@@ -289,7 +317,7 @@ module frontendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = 
 module backendCert '../CARML/Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
   name: 'backendCert'
   params: {
-    value: aksIngressControllerCertificate
+    value: aksCert
     keyVaultName: keyVaultName
     name: 'backendCert'
   }
@@ -455,7 +483,7 @@ module agw '../CARML/Microsoft.Network/applicationGateways/deploy.bicep' = {
           sslCertificate: {
             id: '${subscription().id}/resourceGroups/${resourceGroupName}/providers/Microsoft.Network/applicationGateways/${agwName}/sslCertificates/${agwName}-ssl-certificate'
           }
-          hostName: 'bicycle.${domainName}'
+          hostName: '${cn}.${domainName}'
           hostNames: []
           requireServerNameIndication: false
         }
