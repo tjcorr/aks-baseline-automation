@@ -10,7 +10,7 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
 }
 
 resource generateCerts 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'Generate-Certificate'
+  name: 'Generate-AGW-Certificate'
   location: location
   identity: {
     type: 'UserAssigned'

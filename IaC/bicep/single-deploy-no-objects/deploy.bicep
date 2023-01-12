@@ -179,7 +179,6 @@ param prereqs_appGatewayListenerCertificate string = ''
 @description('The certificate to use for the AKS Ingress Controller. If blank a certificate will be auto-generated.')
 param prereqs_aksIngressControllerCertificate string = ''
 
-
 module clusterPrereqs '../rg-spoke/clusterprereq.bicep' = {
   name: 'cluster-prereqs'
   params: {
@@ -193,4 +192,52 @@ module clusterPrereqs '../rg-spoke/clusterprereq.bicep' = {
     appGatewayListenerCertificate: prereqs_appGatewayListenerCertificate
     aksIngressControllerCertificate: prereqs_aksIngressControllerCertificate
   }
+  // this is needed in case you are deploying to the same RG as ACR otherwise you will get a conflict
+  dependsOn: [
+    acr
+  ]
+}
+
+@description('Name of the resource group')
+param cluster_resourceGroupName string = 'rg-bu0001a0008'
+
+@description('Azure AD Group in the identified tenant that will be granted the highly privileged cluster-admin role. If Azure RBAC is used, then this group will get a role assignment to Azure RBAC, else it will be assigned directly to the cluster\'s admin group.')
+param cluster_clusterAdminAadGroupObjectId string
+
+@description('Azure AD Group in the identified tenant that will be granted the read only privileges in the a0008 namespace that exists in the cluster. This is only used when Azure RBAC is used for Kubernetes RBAC.')
+param cluster_a0008NamespaceReaderAadGroupObjectId string
+
+@description('IP ranges authorized to contact the Kubernetes API server. Passing an empty array will result in no IP restrictions. If any are provided, remember to also provide the public IP of the egress Azure Firewall otherwise your nodes will not be able to talk to the API server (e.g. Flux).')
+param cluster_clusterAuthorizedIPRanges array = []
+
+param cluster_kubernetesVersion string
+
+@description('Your cluster will be bootstrapped from this git repo.')
+@minLength(9)
+param cluster_gitOpsBootstrappingRepoHttpsUrl string
+
+@description('You cluster will be bootstrapped from this branch in the identifed git repo.')
+@minLength(1)
+param cluster_gitOpsBootstrappingRepoBranch string
+
+module cluster '../rg-spoke/cluster.bicep' = {
+  name: 'cluster'
+  params: {
+    resourceGroupName: cluster_resourceGroupName
+    vNetResourceGroup: spoke_resourceGroupName
+    a0008NamespaceReaderAadGroupObjectId: cluster_clusterAdminAadGroupObjectId
+    clusterAdminAadGroupObjectId: cluster_a0008NamespaceReaderAadGroupObjectId
+    clusterAuthorizedIPRanges: cluster_clusterAuthorizedIPRanges
+    domainName: prereqs_domainName
+    gitOpsBootstrappingRepoBranch: cluster_gitOpsBootstrappingRepoBranch
+    gitOpsBootstrappingRepoHttpsUrl: cluster_gitOpsBootstrappingRepoHttpsUrl
+    kubernetesVersion: cluster_kubernetesVersion
+    location: location
+    targetVnetResourceId: spoke.outputs.clusterVnetResourceId
+  }
+  dependsOn: [
+    clusterPrereqs
+    kuredImage
+    traefikImage
+  ]
 }

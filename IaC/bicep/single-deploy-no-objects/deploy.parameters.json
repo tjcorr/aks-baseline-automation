@@ -210,6 +210,24 @@
         },
         "prereqs_cn": {
             "value": "bicycle"
+        },
+        "cluster_resourceGroupName": {
+            "value": "rg-bu0001a0008"
+        },
+        "cluster_clusterAdminAadGroupObjectId": {
+            "value": "fb8f1d40-3318-4936-b715-a44244f51c25"
+        },
+        "cluster_a0008NamespaceReaderAadGroupObjectId": {
+            "value": "fb8f1d40-3318-4936-b715-a44244f51c25"
+        },
+        "cluster_kubernetesVersion": {
+            "value": "1.23.8"
+        },
+        "cluster_gitOpsBootstrappingRepoHttpsUrl": {
+            "value": "https://github.com/Azure/aks-baseline-automation"
+        },
+        "cluster_gitOpsBootstrappingRepoBranch": {
+            "value": "main"
         }
     }        
 }
