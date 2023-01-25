@@ -49,7 +49,7 @@ jobs:
           az deployment sub validate \
             --name validate-${{ github.run_id }} \
             --template-file IaC/bicep/single-deploy/main.bicep \
-            --parameters IaC/bicep/single-deploy/main.parameters.json
+            --parameters IaC/bicep/single-deploy/main.parameters.json \
             --location $LOCATION     
 
     # Preview changes
@@ -60,7 +60,7 @@ jobs:
           az deployment sub what-if \
             --name whatif-${{ github.run_id }} \
             --template-file IaC/bicep/single-deploy/main.bicep \
-            --parameters IaC/bicep/single-deploy/main.parameters.json
+            --parameters IaC/bicep/single-deploy/main.parameters.json \
             --location $LOCATION > whatif
             
       # Create string output of Whatif
@@ -133,6 +133,6 @@ jobs:
           az deployment sub create \
             --name deploy-${{ github.run_id }} \
             --template-file IaC/bicep/single-deploy/main.bicep \
-            --parameters IaC/bicep/single-deploy/main.parameters.json
+            --parameters IaC/bicep/single-deploy/main.parameters.json \
             --location $LOCATION 
             
