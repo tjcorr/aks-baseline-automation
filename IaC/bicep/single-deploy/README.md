@@ -1,5 +1,5 @@
-Recommended Changes
 
+Recommended Changes
 •	The workflow is set to be triggered by a manual execution with user input for the settings. This limits the ability for users to manage the infrastructure on an ongoing basis. The inputs should be converted to either a parameter file or GitHub secrets (or soon variables). This allows us to build CI/CD workflows for the AKS environment.
 •	Should “Check Preview Features” be part of every workflow or should we just move it to the pre-requisite section to eliminate the need to run it for every execution? It takes under 30 seconds so probably not a huge deal either way. The main question to me is are these features normally disabled in a subscription? If so are we OK suggesting preview features in a reference architecture?
 •	Can “Cert Generation” be completed outside of the workflow as part of prerequisites? Otherwise, the workflow isn’t idempotent. The certs should probably land in KeyVault somewhere. Worst case we should upload them as part of the workflow that way we can check for existence and just reuse what is there already. Alternatively this can be done with a deployment script (see below).
