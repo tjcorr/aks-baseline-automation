@@ -228,6 +228,12 @@
         },
         "cluster_gitOpsBootstrappingRepoBranch": {
             "value": "main"
+        },
+        "cluster_minNodes": {
+            "value": 2
+        },
+        "cluster_maxNodes": {
+            "value": 5
         }
     }        
 }

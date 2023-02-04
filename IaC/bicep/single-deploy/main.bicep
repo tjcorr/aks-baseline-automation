@@ -220,6 +220,12 @@ param cluster_gitOpsBootstrappingRepoHttpsUrl string
 @minLength(1)
 param cluster_gitOpsBootstrappingRepoBranch string
 
+@description('The minimum number of compute nodes in the primary user pool.')
+param cluster_minNodes int = 2
+
+@description('The maximum number of compute nodes in the primary user pool.')
+param cluster_maxNodes int = 5
+
 module cluster '../rg-spoke/cluster.bicep' = {
   name: 'cluster'
   params: {
@@ -234,6 +240,8 @@ module cluster '../rg-spoke/cluster.bicep' = {
     kubernetesVersion: cluster_kubernetesVersion
     location: location
     targetVnetResourceId: spoke.outputs.clusterVnetResourceId
+    minNodes: cluster_minNodes
+    maxNodes: cluster_maxNodes
   }
   dependsOn: [
     clusterPrereqs
