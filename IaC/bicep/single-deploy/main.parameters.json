@@ -221,7 +221,7 @@
             "value": "fb8f1d40-3318-4936-b715-a44244f51c25"
         },
         "cluster_kubernetesVersion": {
-            "value": "1.23.8"
+            "value": "1.23.12"
         },
         "cluster_gitOpsBootstrappingRepoHttpsUrl": {
             "value": "https://github.com/Azure/aks-baseline-automation"

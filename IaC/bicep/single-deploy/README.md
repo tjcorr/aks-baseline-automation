@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+=======
+
+
+Recommended Changes
+>>>>>>> e7159175e6d2b8a007871502e55e83bdad415507
 
 Recommended Changes
 •	The workflow is set to be triggered by a manual execution with user input for the settings. This limits the ability for users to manage the infrastructure on an ongoing basis. The inputs should be converted to either a parameter file or GitHub secrets (or soon variables). This allows us to build CI/CD workflows for the AKS environment.
