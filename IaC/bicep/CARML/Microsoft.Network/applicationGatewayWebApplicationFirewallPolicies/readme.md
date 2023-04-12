@@ -105,7 +105,7 @@ The following module usage examples are retrieved from the content of the files 
 
 ```bicep
 module applicationGatewayWebApplicationFirewallPolicies './Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-test-nagwafpcom'
+  name: '${uniqueString(deployment().name, location)}-test-nagwafpcom'
   params: {
     // Required parameters
     name: '<<namePrefix>>nagwafpcom001'
@@ -129,6 +129,10 @@ module applicationGatewayWebApplicationFirewallPolicies './Microsoft.Network/app
       fileUploadLimitInMb: 10
       mode: 'Prevention'
       state: 'Enabled'
+    }
+    tags: {
+      Environment: 'Non-Prod'
+      Role: 'DeploymentValidation'
     }
   }
 }
@@ -175,6 +179,12 @@ module applicationGatewayWebApplicationFirewallPolicies './Microsoft.Network/app
         "fileUploadLimitInMb": 10,
         "mode": "Prevention",
         "state": "Enabled"
+      }
+    },
+    "tags": {
+      "value": {
+        "Environment": "Non-Prod",
+        "Role": "DeploymentValidation"
       }
     }
   }

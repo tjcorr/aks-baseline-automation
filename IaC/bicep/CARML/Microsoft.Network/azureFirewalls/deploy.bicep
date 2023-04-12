@@ -1,13 +1,6 @@
 @description('Required. Name of the Azure Firewall.')
 param name string
 
-@description('Optional. Name of an Azure Firewall SKU.')
-@allowed([
-  'AZFW_VNet'
-  'AZFW_Hub'
-])
-param azureSkuName string = 'AZFW_VNet'
-
 @description('Optional. Tier of an Azure Firewall.')
 @allowed([
   'Standard'
@@ -15,19 +8,19 @@ param azureSkuName string = 'AZFW_VNet'
 ])
 param azureSkuTier string = 'Standard'
 
-@description('Required. Shared services Virtual Network resource ID. The virtual network ID containing AzureFirewallSubnet. If a public ip is not provided, then the public ip that is created as part of this module will be applied with the subnet provided in this variable.')
-param vNetId string
+@description('Conditional. Shared services Virtual Network resource ID. The virtual network ID containing AzureFirewallSubnet. If a Public IP is not provided, then the Public IP that is created as part of this module will be applied with the subnet provided in this variable. Required if `virtualHubId` is empty.')
+param vNetId string = ''
 
-@description('Optional. The public ip resource ID to associate to the AzureFirewallSubnet. If empty, then the public ip that is created as part of this module will be applied to the AzureFirewallSubnet.')
-param azureFirewallSubnetPublicIpId string = ''
+@description('Optional. The Public IP resource ID to associate to the AzureFirewallSubnet. If empty, then the Public IP that is created as part of this module will be applied to the AzureFirewallSubnet.')
+param publicIPResourceID string = ''
 
-@description('Optional. This is to add any additional public ip configurations on top of the public ip with subnet ip configuration.')
+@description('Optional. This is to add any additional Public IP configurations on top of the Public IP with subnet IP configuration.')
 param additionalPublicIpConfigurations array = []
 
-@description('Optional. Specifies if a public ip should be created by default if one is not provided.')
+@description('Optional. Specifies if a Public IP should be created by default if one is not provided.')
 param isCreateDefaultPublicIP bool = true
 
-@description('Optional. Specifies the properties of the public IP to create and be used by Azure Firewall. If it\'s not provided and publicIPAddressId is empty, a \'-pip\' suffix will be appended to the Firewall\'s name.')
+@description('Optional. Specifies the properties of the Public IP to create and be used by Azure Firewall. If it\'s not provided and publicIPAddressId is empty, a \'-pip\' suffix will be appended to the Firewall\'s name.')
 param publicIPAddressObject object = {}
 
 @description('Optional. Collection of application rule collections used by Azure Firewall.')
@@ -41,6 +34,12 @@ param natRuleCollections array = []
 
 @description('Optional. Resource ID of the Firewall Policy that should be attached.')
 param firewallPolicyId string = ''
+
+@description('Conditional. IP addresses associated with AzureFirewall. Required if `virtualHubId` is supplied.')
+param hubIPAddresses object = {}
+
+@description('Conditional. The virtualHub resource ID to which the firewall belongs. Required if `vNetId` is empty.')
+param virtualHubId string = ''
 
 @allowed([
   'Alert'
@@ -113,8 +112,8 @@ param diagnosticMetricsToEnable array = [
   'AllMetrics'
 ]
 
-@description('Optional. The name of the diagnostic setting, if deployed.')
-param diagnosticSettingsName string = '${name}-diagnosticSettings'
+@description('Optional. The name of the diagnostic setting, if deployed. If left empty, it defaults to "<resourceName>-diagnosticSettings".')
+param diagnosticSettingsName string = ''
 
 var additionalPublicIpConfigurationsVar = [for ipConfiguration in additionalPublicIpConfigurations: {
   name: ipConfiguration.name
@@ -127,9 +126,9 @@ var additionalPublicIpConfigurationsVar = [for ipConfiguration in additionalPubl
 
 // ----------------------------------------------------------------------------
 // Prep ipConfigurations object AzureFirewallSubnet for different uses cases:
-// 1. Use existing public ip
-// 2. Use new public ip created in this module
-// 3. Do not use a public ip if isCreateDefaultPublicIP is false
+// 1. Use existing Public IP
+// 2. Use new Public IP created in this module
+// 3. Do not use a Public IP if isCreateDefaultPublicIP is false
 
 var subnetVar = {
   subnet: {
@@ -138,20 +137,22 @@ var subnetVar = {
 }
 var existingPip = {
   publicIPAddress: {
-    id: azureFirewallSubnetPublicIpId
+    id: publicIPResourceID
   }
 }
 var newPip = {
-  publicIPAddress: (empty(azureFirewallSubnetPublicIpId) && isCreateDefaultPublicIP) ? {
+  publicIPAddress: (empty(publicIPResourceID) && isCreateDefaultPublicIP) ? {
     id: publicIPAddress.outputs.resourceId
   } : null
 }
 
+var azureSkuName = empty(vNetId) ? 'AZFW_Hub' : 'AZFW_VNet'
+
 var ipConfigurations = concat([
     {
-      name: !empty(azureFirewallSubnetPublicIpId) ? last(split(azureFirewallSubnetPublicIpId, '/')) : publicIPAddress.outputs.name
-      //Use existing public ip, new public ip created in this module, or none if isCreateDefaultPublicIP is false
-      properties: union(subnetVar, !empty(azureFirewallSubnetPublicIpId) ? existingPip : {}, (isCreateDefaultPublicIP ? newPip : {}))
+      name: !empty(publicIPResourceID) ? last(split(publicIPResourceID, '/')) : publicIPAddress.outputs.name
+      //Use existing Public IP, new Public IP created in this module, or none if isCreateDefaultPublicIP is false
+      properties: union(subnetVar, !empty(publicIPResourceID) ? existingPip : {}, (isCreateDefaultPublicIP ? newPip : {}))
     }
   ], additionalPublicIpConfigurationsVar)
 
@@ -187,6 +188,8 @@ var diagnosticsMetrics = [for metric in diagnosticMetricsToEnable: {
   }
 }]
 
+var enableReferencedModulesTelemetry = false
+
 resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableDefaultTelemetry) {
   name: 'pid-47ed15a6-730a-4827-bcb4-0fd963ffbd82-${uniqueString(deployment().name, location)}'
   properties: {
@@ -199,8 +202,8 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-// create a public ip address if one is not provided and the flag is true
-module publicIPAddress '../../Microsoft.Network/publicIPAddresses/deploy.bicep' = if (empty(azureFirewallSubnetPublicIpId) && isCreateDefaultPublicIP) {
+// create a Public IP address if one is not provided and the flag is true
+module publicIPAddress '../../Microsoft.Network/publicIPAddresses/deploy.bicep' = if (empty(publicIPResourceID) && isCreateDefaultPublicIP && azureSkuName == 'AZFW_VNet') {
   name: '${uniqueString(deployment().name, location)}-Firewall-PIP'
   params: {
     name: contains(publicIPAddressObject, 'name') ? (!(empty(publicIPAddressObject.name)) ? publicIPAddressObject.name : '${name}-pip') : '${name}-pip'
@@ -214,14 +217,8 @@ module publicIPAddress '../../Microsoft.Network/publicIPAddresses/deploy.bicep' 
     ]) : [
       'AllMetrics'
     ]
-    diagnosticLogCategoriesToEnable: contains(publicIPAddressObject, 'diagnosticLogCategoriesToEnable') ? (!(empty(publicIPAddressObject.diagnosticLogCategoriesToEnable)) ? publicIPAddressObject.diagnosticLogCategoriesToEnable : [
-      'DDoSProtectionNotifications'
-      'DDoSMitigationFlowLogs'
-      'DDoSMitigationReports'
-    ]) : [
-      'DDoSProtectionNotifications'
-      'DDoSMitigationFlowLogs'
-      'DDoSMitigationReports'
+    diagnosticLogCategoriesToEnable: contains(publicIPAddressObject, 'diagnosticLogCategoriesToEnable') ? publicIPAddressObject.diagnosticLogCategoriesToEnable : [
+      'allLogs'
     ]
     location: location
     diagnosticStorageAccountId: diagnosticStorageAccountId
@@ -232,19 +229,20 @@ module publicIPAddress '../../Microsoft.Network/publicIPAddresses/deploy.bicep' 
     lock: lock
     tags: tags
     zones: zones
+    enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }
 
-resource azureFirewall 'Microsoft.Network/azureFirewalls@2021-08-01' = {
+resource azureFirewall 'Microsoft.Network/azureFirewalls@2022-07-01' = {
   name: name
   location: location
   zones: length(zones) == 0 ? null : zones
   tags: tags
-  properties: {
+  properties: azureSkuName == 'AZFW_VNet' ? {
     threatIntelMode: threatIntelMode
-    firewallPolicy: empty(firewallPolicyId) ? null : {
+    firewallPolicy: !empty(firewallPolicyId) ? {
       id: firewallPolicyId
-    }
+    } : null
     ipConfigurations: ipConfigurations
     sku: {
       name: azureSkuName
@@ -253,6 +251,18 @@ resource azureFirewall 'Microsoft.Network/azureFirewalls@2021-08-01' = {
     applicationRuleCollections: applicationRuleCollections
     natRuleCollections: natRuleCollections
     networkRuleCollections: networkRuleCollections
+  } : {
+    firewallPolicy: !empty(firewallPolicyId) ? {
+      id: firewallPolicyId
+    } : null
+    sku: {
+      name: azureSkuName
+      tier: azureSkuTier
+    }
+    hubIPAddresses: !empty(hubIPAddresses) ? hubIPAddresses : null
+    virtualHub: !empty(virtualHubId) ? {
+      id: virtualHubId
+    } : null
   }
   dependsOn: [
     publicIPAddress
@@ -269,7 +279,7 @@ resource azureFirewall_lock 'Microsoft.Authorization/locks@2020-05-01' = if (!em
 }
 
 resource azureFirewall_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (!empty(diagnosticStorageAccountId) || !empty(diagnosticWorkspaceId) || !empty(diagnosticEventHubAuthorizationRuleId) || !empty(diagnosticEventHubName)) {
-  name: diagnosticSettingsName
+  name: !empty(diagnosticSettingsName) ? diagnosticSettingsName : '${name}-diagnosticSettings'
   properties: {
     storageAccountId: !empty(diagnosticStorageAccountId) ? diagnosticStorageAccountId : null
     workspaceId: !empty(diagnosticWorkspaceId) ? diagnosticWorkspaceId : null
@@ -294,20 +304,20 @@ module azureFirewall_roleAssignments '.bicep/nested_roleAssignments.bicep' = [fo
   }
 }]
 
-@description('The resource ID of the Azure firewall.')
+@description('The resource ID of the Azure Firewall.')
 output resourceId string = azureFirewall.id
 
-@description('The name of the Azure firewall.')
+@description('The name of the Azure Firewall.')
 output name string = azureFirewall.name
 
 @description('The resource group the Azure firewall was deployed into.')
 output resourceGroupName string = resourceGroup().name
 
 @description('The private IP of the Azure firewall.')
-output privateIp string = azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress
+output privateIp string = contains(azureFirewall.properties, 'ipConfigurations') ? azureFirewall.properties.ipConfigurations[0].properties.privateIPAddress : ''
 
-@description('The public ipconfiguration object for the AzureFirewallSubnet.')
-output ipConfAzureFirewallSubnet object = azureFirewall.properties.ipConfigurations[0]
+@description('The Public IP configuration object for the Azure Firewall Subnet.')
+output ipConfAzureFirewallSubnet object = contains(azureFirewall.properties, 'ipConfigurations') ? azureFirewall.properties.ipConfigurations[0] : {}
 
 @description('List of Application Rule Collections.')
 output applicationRuleCollections array = applicationRuleCollections

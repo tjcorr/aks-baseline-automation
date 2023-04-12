@@ -396,7 +396,7 @@ The following module usage examples are retrieved from the content of the files 
 
 ```bicep
 module metricAlerts './Microsoft.Insights/metricAlerts/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-test-imacom'
+  name: '${uniqueString(deployment().name, location)}-test-imacom'
   params: {
     // Required parameters
     criterias: [
@@ -426,6 +426,10 @@ module metricAlerts './Microsoft.Insights/metricAlerts/deploy.bicep' = {
         roleDefinitionIdOrName: 'Reader'
       }
     ]
+    tags: {
+      Environment: 'Non-Prod'
+      Role: 'DeploymentValidation'
+    }
     targetResourceRegion: 'westeurope'
     targetResourceType: 'microsoft.compute/virtualmachines'
     windowSize: 'PT15M'
@@ -484,6 +488,12 @@ module metricAlerts './Microsoft.Insights/metricAlerts/deploy.bicep' = {
           "roleDefinitionIdOrName": "Reader"
         }
       ]
+    },
+    "tags": {
+      "value": {
+        "Environment": "Non-Prod",
+        "Role": "DeploymentValidation"
+      }
     },
     "targetResourceRegion": {
       "value": "westeurope"

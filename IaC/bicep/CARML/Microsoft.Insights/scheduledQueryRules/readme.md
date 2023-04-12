@@ -177,7 +177,7 @@ The following module usage examples are retrieved from the content of the files 
 
 ```bicep
 module scheduledQueryRules './Microsoft.Insights/scheduledQueryRules/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-test-isqrcom'
+  name: '${uniqueString(deployment().name, location)}-test-isqrcom'
   params: {
     // Required parameters
     criterias: {
@@ -227,6 +227,10 @@ module scheduledQueryRules './Microsoft.Insights/scheduledQueryRules/deploy.bice
       }
     ]
     suppressForMinutes: 'PT5M'
+    tags: {
+      Environment: 'Non-Prod'
+      Role: 'DeploymentValidation'
+    }
     windowSize: 'PT5M'
   }
 }
@@ -311,6 +315,12 @@ module scheduledQueryRules './Microsoft.Insights/scheduledQueryRules/deploy.bice
     },
     "suppressForMinutes": {
       "value": "PT5M"
+    },
+    "tags": {
+      "value": {
+        "Environment": "Non-Prod",
+        "Role": "DeploymentValidation"
+      }
     },
     "windowSize": {
       "value": "PT5M"

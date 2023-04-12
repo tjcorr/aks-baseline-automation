@@ -38,7 +38,7 @@ This module deploys an Event Grid System Topic.
 | `diagnosticLogCategoriesToEnable` | array | `[allLogs]` | `[allLogs, DeliveryFailures]` | The name of logs that will be streamed. "allLogs" includes all possible logs for the resource. |
 | `diagnosticLogsRetentionInDays` | int | `365` |  | Specifies the number of days that logs will be kept for; a value of 0 will retain data indefinitely. |
 | `diagnosticMetricsToEnable` | array | `[AllMetrics]` | `[AllMetrics]` | The name of metrics that will be streamed. |
-| `diagnosticSettingsName` | string | `[format('{0}-diagnosticSettings', parameters('name'))]` |  | The name of the diagnostic setting, if deployed. |
+| `diagnosticSettingsName` | string | `''` |  | The name of the diagnostic setting, if deployed. If left empty, it defaults to "<resourceName>-diagnosticSettings". |
 | `diagnosticStorageAccountId` | string | `''` |  | Resource ID of the diagnostic storage account. |
 | `diagnosticWorkspaceId` | string | `''` |  | Resource ID of the diagnostic log analytics workspace. |
 | `enableDefaultTelemetry` | bool | `True` |  | Enable telemetry via a Globally Unique Identifier (GUID). |
@@ -54,7 +54,7 @@ This module deploys an Event Grid System Topic.
 
 To use Private Endpoint the following dependencies must be deployed:
 
-- Destination subnet must be created with the following configuration option - `"privateEndpointNetworkPolicies": "Disabled"`.  Setting this option acknowledges that NSG rules are not applied to Private Endpoints (this capability is coming soon). A full example is available in the Virtual Network Module.
+- Destination subnet must be created with the following configuration option - `"privateEndpointNetworkPolicies": "Disabled"`. Setting this option acknowledges that NSG rules are not applied to Private Endpoints (this capability is coming soon). A full example is available in the Virtual Network Module.
 - Although not strictly required, it is highly recommended to first create a private DNS Zone to host Private Endpoint DNS records. See [Azure Private Endpoint DNS configuration](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns) for more information.
 
 <details>
@@ -289,7 +289,7 @@ The following module usage examples are retrieved from the content of the files 
 
 ```bicep
 module systemTopics './Microsoft.EventGrid/systemTopics/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-test-egstcom'
+  name: '${uniqueString(deployment().name, location)}-test-egstcom'
   params: {
     // Required parameters
     name: '<<namePrefix>>egstcom001'
@@ -312,6 +312,10 @@ module systemTopics './Microsoft.EventGrid/systemTopics/deploy.bicep' = {
         roleDefinitionIdOrName: 'Reader'
       }
     ]
+    tags: {
+      Environment: 'Non-Prod'
+      Role: 'DeploymentValidation'
+    }
   }
 }
 ```
@@ -370,6 +374,12 @@ module systemTopics './Microsoft.EventGrid/systemTopics/deploy.bicep' = {
           "roleDefinitionIdOrName": "Reader"
         }
       ]
+    },
+    "tags": {
+      "value": {
+        "Environment": "Non-Prod",
+        "Role": "DeploymentValidation"
+      }
     }
   }
 }
@@ -386,7 +396,7 @@ module systemTopics './Microsoft.EventGrid/systemTopics/deploy.bicep' = {
 
 ```bicep
 module systemTopics './Microsoft.EventGrid/systemTopics/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-test-egstmin'
+  name: '${uniqueString(deployment().name, location)}-test-egstmin'
   params: {
     // Required parameters
     name: '<<namePrefix>>egstmin001'

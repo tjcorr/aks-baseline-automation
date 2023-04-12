@@ -52,7 +52,7 @@ For Details see [Prerequisites](https://learn.microsoft.com/en-us/azure/azure-ar
 | Parameter Name | Type | Default Value | Description |
 | :-- | :-- | :-- | :-- |
 | `bucket` | object | `{object}` | Parameters to reconcile to the GitRepository source kind type. |
-| `configurationProtectedSettings` | object | `{object}` | Key-value pairs of protected configuration settings for the configuration. |
+| `configurationProtectedSettings` | secureObject | `{object}` | Key-value pairs of protected configuration settings for the configuration. |
 | `enableDefaultTelemetry` | bool | `True` | Enable telemetry via a Globally Unique Identifier (GUID). |
 | `gitRepository` | object | `{object}` | Parameters to reconcile to the GitRepository source kind type. |
 | `kustomizations` | object | `{object}` | Array of kustomizations used to reconcile the artifact pulled by the source type on the cluster. |
@@ -87,7 +87,7 @@ The following module usage examples are retrieved from the content of the files 
 
 ```bicep
 module fluxConfigurations './Microsoft.KubernetesConfiguration/fluxConfigurations/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-test-kcfccom'
+  name: '${uniqueString(deployment().name, location)}-test-kcfccom'
   params: {
     // Required parameters
     clusterName: '<clusterName>'
@@ -186,7 +186,7 @@ module fluxConfigurations './Microsoft.KubernetesConfiguration/fluxConfiguration
 
 ```bicep
 module fluxConfigurations './Microsoft.KubernetesConfiguration/fluxConfigurations/deploy.bicep' = {
-  name: '${uniqueString(deployment().name)}-test-kcfcmin'
+  name: '${uniqueString(deployment().name, location)}-test-kcfcmin'
   params: {
     // Required parameters
     clusterName: '<clusterName>'

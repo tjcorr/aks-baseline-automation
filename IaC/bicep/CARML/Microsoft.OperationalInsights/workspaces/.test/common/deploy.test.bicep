@@ -3,6 +3,7 @@ targetScope = 'subscription'
 // ========== //
 // Parameters //
 // ========== //
+
 @description('Optional. The name of the resource group to deploy for testing purposes.')
 @maxLength(90)
 param resourceGroupName string = 'ms.operationalinsights.workspaces-${serviceShort}-rg'
@@ -16,29 +17,30 @@ param serviceShort string = 'oiwcom'
 @description('Optional. Enable telemetry via a Globally Unique Identifier (GUID).')
 param enableDefaultTelemetry bool = true
 
-// =========== //
-// Deployments //
-// =========== //
+// ============ //
+// Dependencies //
+// ============ //
 
 // General resources
 // =================
-resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: resourceGroupName
   location: location
 }
 
-module resourceGroupResources 'dependencies.bicep' = {
+module nestedDependencies 'dependencies.bicep' = {
   scope: resourceGroup
-  name: '${uniqueString(deployment().name, location)}-paramNested'
+  name: '${uniqueString(deployment().name, location)}-nestedDependencies'
   params: {
     storageAccountName: 'dep<<namePrefix>>sa${serviceShort}'
     automationAccountName: 'dep-<<namePrefix>>-auto-${serviceShort}'
+    managedIdentityName: 'dep-<<namePrefix>>-msi-${serviceShort}'
   }
 }
 
 // Diagnostics
 // ===========
-module diagnosticDependencies '../../../../.shared/dependencyConstructs/diagnostic.dependencies.bicep' = {
+module diagnosticDependencies '../../../../.shared/.templates/diagnostic.dependencies.bicep' = {
   scope: resourceGroup
   name: '${uniqueString(deployment().name, location)}-diagnosticDependencies'
   params: {
@@ -56,7 +58,7 @@ module diagnosticDependencies '../../../../.shared/dependencyConstructs/diagnost
 
 module testDeployment '../../deploy.bicep' = {
   scope: resourceGroup
-  name: '${uniqueString(deployment().name)}-test-${serviceShort}'
+  name: '${uniqueString(deployment().name, location)}-test-${serviceShort}'
   params: {
     enableDefaultTelemetry: enableDefaultTelemetry
     name: '<<namePrefix>>${serviceShort}001'
@@ -166,13 +168,13 @@ module testDeployment '../../deploy.bicep' = {
     linkedServices: [
       {
         name: 'Automation'
-        resourceId: resourceGroupResources.outputs.automationAccountResourceId
+        resourceId: nestedDependencies.outputs.automationAccountResourceId
       }
     ]
     linkedStorageAccounts: [
       {
         name: 'Query'
-        resourceId: resourceGroupResources.outputs.storageAccountResourceId
+        resourceId: nestedDependencies.outputs.storageAccountResourceId
       }
     ]
     lock: 'CanNotDelete'
@@ -188,7 +190,7 @@ module testDeployment '../../deploy.bicep' = {
     ]
     storageInsightsConfigs: [
       {
-        storageAccountId: resourceGroupResources.outputs.storageAccountResourceId
+        storageAccountResourceId: nestedDependencies.outputs.storageAccountResourceId
         tables: [
           'LinuxsyslogVer2v0'
           'WADETWEventTable'
@@ -198,5 +200,19 @@ module testDeployment '../../deploy.bicep' = {
       }
     ]
     useResourcePermissions: true
+    tags: {
+      Environment: 'Non-Prod'
+      Role: 'DeploymentValidation'
+    }
+    systemAssignedIdentity: true
+    roleAssignments: [
+      {
+        roleDefinitionIdOrName: 'Reader'
+        principalIds: [
+          nestedDependencies.outputs.managedIdentityPrincipalId
+        ]
+        principalType: 'ServicePrincipal'
+      }
+    ]
   }
 }
