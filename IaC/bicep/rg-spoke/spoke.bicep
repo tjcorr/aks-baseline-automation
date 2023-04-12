@@ -282,7 +282,7 @@ module clusterVNet '../CARML/Microsoft.Network/virtualNetworks/deploy.bicep' = {
         privateLinkServiceNetworkPolicies: 'Enabled'
       }
     ]
-    virtualNetworkPeerings: [
+    peerings: [
       {
         remoteVirtualNetworkId: hubVnetResourceId
         remotePeeringName: toHubPeeringName
