@@ -402,7 +402,7 @@ module acrPullRole '../CARML/Microsoft.ContainerRegistry/registries/.bicep/neste
   ]
 }
 
-module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_roleAssignments.bicep' = {
+module managedIdentityOperatorRole '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_roleAssignments.bicep' = {
   name: 'managedIdentityOperatorRole'
   params: {
     principalIds: [
@@ -432,7 +432,7 @@ module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups
   }
 }
 
-module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_roleAssignments.bicep' = {
+module monitoringMetricsPublisherRole '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_roleAssignments.bicep' = {
   name: 'monitoringMetricsPublisherRole'
   params: {
     principalIds: [
