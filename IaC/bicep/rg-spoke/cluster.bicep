@@ -66,7 +66,7 @@ param minNodes int = 2
 param maxNodes int = 5
 
 // var networkContributorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
-// var monitoringMetricsPublisherRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb'
+var monitoringMetricsPublisherRoleID = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '3913510d-42f4-4e42-8a64-420c390055eb')
 // var acrPullRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
 var managedIdentityOperatorRoleID = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f1a07417-d97a-45cb-824c-7a7467783830')
 // var virtualMachineContributorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c'
@@ -432,13 +432,13 @@ module managedIdentityOperatorRole2 '../CARML/Microsoft.Resources/resourceGroups
   }
 }
 
-module monitoringMetricsPublisherRole '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_roleAssignments.bicep' = {
+module monitoringMetricsPublisherRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_roleAssignments.bicep' = {
   name: 'monitoringMetricsPublisherRole'
   params: {
     principalIds: [
       cluster.outputs.omsagentIdentityObjectId
     ]
-    roleDefinitionIdOrName: 'Monitoring Metrics Publisher'
+    roleDefinitionIdOrName: monitoringMetricsPublisherRoleID
     resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
