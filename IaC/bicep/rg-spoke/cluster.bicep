@@ -68,7 +68,7 @@ param maxNodes int = 5
 // var networkContributorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7'
 // var monitoringMetricsPublisherRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/3913510d-42f4-4e42-8a64-420c390055eb'
 // var acrPullRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/7f951dda-4ed3-4680-a7ca-43fe172d538d'
-// var managedIdentityOperatorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830'
+var managedIdentityOperatorRoleID = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f1a07417-d97a-45cb-824c-7a7467783830')
 // var virtualMachineContributorRole = '${subscription().id}/providers/Microsoft.Authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c'
 // var clusterAdminRoleId = 'b1ff04bb-8a4e-4dc4-8eb5-8693973ce19b'
 // var clusterReaderRoleId = '7f6c6a51-bcf8-42ba-9220-52d62157d7db'
@@ -402,13 +402,13 @@ module acrPullRole '../CARML/Microsoft.ContainerRegistry/registries/.bicep/neste
   ]
 }
 
-module managedIdentityOperatorRole '../CARML/Microsoft.Resources/resourceGroups/.bicep/nested_roleAssignments.bicep' = {
+module managedIdentityOperatorRole '../CARML/Microsoft.ContainerService/managedClusters/.bicep/nested_roleAssignments.bicep' = {
   name: 'managedIdentityOperatorRole'
   params: {
     principalIds: [
       cluster.outputs.kubeletidentityObjectId
     ]
-    roleDefinitionIdOrName: 'Managed Identity Operator'
+    roleDefinitionIdOrName: managedIdentityOperatorRoleID
     resourceId: cluster.outputs.resourceId
   }
   scope: resourceGroup(resourceGroupName)
