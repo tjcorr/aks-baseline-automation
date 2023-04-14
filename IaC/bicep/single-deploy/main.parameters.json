@@ -233,7 +233,7 @@
             "value": 2
         },
         "cluster_maxNodes": {
-            "value": 3
+            "value": 5
         }
     }        
 }
